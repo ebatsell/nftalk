@@ -1,0 +1,29 @@
+{
+    // Lint
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true,
+    "eslint.alwaysShowStatus": true,
+    "eslint.format.enable": true,
+    "eslint.run": "onSave",
+    "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+    "eslint.workingDirectories": [
+        "frontend",
+        "tests",
+    ],
+    // Hide Files
+    "files.exclude": {
+      // VS Code Auto-complete Defaults
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      // Custom
+      // "**/node_modules": true,
+      "**.expo": true,
+      "**/.yarn": true,
+      "**/.next": true
+    }
+  }
+  

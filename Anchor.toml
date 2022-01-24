@@ -1,0 +1,12 @@
+[programs.localnet]
+nftalk = "6swWgz4xSUucbxE5VD1fb1Eq8ZJ34J224TG25hXhLVxW"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "mainnet"
+wallet = "/Users/evanbatsell/.config/solana/id.json"
+
+[scripts]
+test = "mocha -t 1000000 tests/"
