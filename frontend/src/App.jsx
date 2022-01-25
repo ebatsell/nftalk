@@ -9,13 +9,16 @@ import idl from "./idl.json";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Program, Provider, web3 } from "@project-serum/anchor";
 import { Buffer } from "buffer";
-import keypair from "./keypair.json";
+// import keypair from "./keypair.json";
 import Message from "./Message";
 
 window.Buffer = Buffer;
 
 // SystemProgram is a reference to the Solana runtime!
 const { SystemProgram, Keypair } = web3;
+
+console.log(process.env);
+const keypair = JSON.parse(process.env.KEYPAIR);
 
 // Create a keypair for the account that will hold the GIF data.
 const arr = Object.values(keypair._keypair.secretKey);
