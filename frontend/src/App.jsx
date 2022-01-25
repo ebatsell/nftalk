@@ -27,7 +27,9 @@ const baseAccount = Keypair.fromSecretKey(secret);
 const programID = new PublicKey(idl.metadata.address);
 
 // Set our network to devnet.
-const network = clusterApiUrl('mainnet-beta');
+// Hacky way to get around CORS error
+const network = 'https://solana-api.projectserum.com/'
+// const network = clusterApiUrl('mainnet-beta');
 // const network = clusterApiUrl('devnet');
 // const network = "http://localhost:8899";
 
