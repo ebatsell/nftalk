@@ -23,7 +23,7 @@ const keypair = JSON.parse(process.env.KEYPAIR);
 // Create a keypair for the account that will hold the GIF data.
 const arr = Object.values(keypair._keypair.secretKey);
 const secret = new Uint8Array(arr);
-const baseAccount = web3.Keypair.fromSecretKey(secret);
+const baseAccount = Keypair.fromSecretKey(secret);
 // Get our program's id from the IDL file.
 const programID = new PublicKey(idl.metadata.address);
 
@@ -178,7 +178,7 @@ const App = () => {
       });
 
       messageList.splice(
-        messageList.findIndex((m) => m.id == messageId),
+        messageList.findIndex((m) => m.id === messageId),
         1
       );
       setMessageList(messageList); // Set react state
@@ -286,7 +286,7 @@ const App = () => {
     return () => window.removeEventListener("load", onLoad);
   }, []);
 
-  useEffect(() => {
+  useEffect((getMessageList) => {
     if (walletAddress) {
       console.log("Fetching post list...");
 
