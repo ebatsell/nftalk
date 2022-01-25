@@ -6,7 +6,7 @@ import likeIconPath from "./assets/outline-status-heart-plus@2x.png";
 import profilePicPath from "./assets/download-1@1x.png";
 import "./App.css";
 import idl from "./idl.json";
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { Program, Provider, web3 } from "@project-serum/anchor";
 import { Buffer } from "buffer";
 // import keypair from "./keypair.json";
