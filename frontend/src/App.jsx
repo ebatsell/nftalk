@@ -17,8 +17,7 @@ window.Buffer = Buffer;
 // SystemProgram is a reference to the Solana runtime!
 const { SystemProgram, Keypair } = web3;
 
-console.log(process.env);
-const keypair = JSON.parse(process.env.KEYPAIR);
+const keypair = JSON.parse(process.env.REACT_APP_KEYPAIR);
 
 // Create a keypair for the account that will hold the GIF data.
 const arr = Object.values(keypair._keypair.secretKey);
