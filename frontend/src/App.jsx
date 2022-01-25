@@ -286,13 +286,14 @@ const App = () => {
     return () => window.removeEventListener("load", onLoad);
   }, []);
 
-  useEffect((getMessageList) => {
+  useEffect(() => {
     if (walletAddress) {
       console.log("Fetching post list...");
 
       // Call Solana program here.
-      getMessageList();
+      getMessageList(); 
     }
+  // eslint-disable-next-line
   }, [walletAddress]);
 
   return (
