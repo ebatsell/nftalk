@@ -150,5 +150,8 @@
       "name": "ExceededMessageLength",
       "msg": "The provided message text is too long. Maximum 240 Characters."
     }
-  ]
+  ],
+  "metadata": {
+    "address": "6gPJfJrAhqH2SSa5morvHwBWeET8FNqHX2MTUCRoCJbX"
+  }
 }
