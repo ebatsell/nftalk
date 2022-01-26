@@ -108,4 +108,21 @@ describe('nftalk', () => {
     // Access gif_list on the account!
     console.log('👀 Message List', account.messages)
   });
+
+  it("Message too long", async () =>  {
+    try {
+      const tx = await program.rpc.postMessage(
+        "My really long test message..................................................................................................................................................................................................................................................................................................................",
+        {
+          accounts: {
+            myAccount: myUserAccount.publicKey,
+            user: provider.wallet.publicKey,
+          },
+        }
+      );
+      assert.ok(false);
+    } catch(error) {
+      assert.equal(error.message, "301: The provided message text is too long. Maximum 240 Characters.");
+    }
+  });
 });

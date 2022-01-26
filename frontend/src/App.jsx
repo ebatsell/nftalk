@@ -3,7 +3,6 @@ import twitterLogo from "./assets/twitter-logo.svg";
 import shareIconPath from "./assets/solid-communication-share@2x.png";
 import trashIconPath from "./assets/solid-interface-trash-alt@2x.png";
 import likeIconPath from "./assets/outline-status-heart-plus@2x.png";
-import profilePicPath from "./assets/download-1@1x.png";
 import "./App.css";
 import idl from "./idl.json";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -332,7 +331,7 @@ const App = () => {
 
 
 const messageData = {
-    profilePicPath: profilePicPath,
+    profilePicPath: "./assets/apes/",
     shareIconPath: shareIconPath,
     trashIconPath: trashIconPath,
     likeIconPath: likeIconPath

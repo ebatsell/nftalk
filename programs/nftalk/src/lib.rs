@@ -14,6 +14,10 @@ pub mod nftalk {
     }
 
     pub fn post_message(ctx: Context<CRUDMessage>, text: String) -> ProgramResult {
+        if text.len() > 240 {
+            return Err(ErrorCode::ExceededMessageLength.into());
+        }
+
         // Fetch current chain time in seconds
         let clock = Clock::get()?;
         let ts = clock.unix_timestamp;
@@ -135,5 +139,7 @@ pub struct CRUDMessage<'info> {
 #[error]
 pub enum ErrorCode {
     #[msg("The given message ID does not exist.")]
-    InvalidMessage
+    InvalidMessage,
+    #[msg("The provided message text is too long. Maximum 240 Characters.")]
+    ExceededMessageLength,
 }
