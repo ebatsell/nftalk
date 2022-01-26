@@ -40,7 +40,7 @@ const opts = {
 
 // Change this up to be your Twitter if you want.
 const TWITTER_HANDLE = "evanbat_";
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}/status/1486097274245689344`;
 
 const App = () => {
   /*

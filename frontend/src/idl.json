@@ -24,27 +24,6 @@
       "args": []
     },
     {
-      "name": "createUser",
-      "accounts": [
-        {
-          "name": "myAccount",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "postMessage",
       "accounts": [
         {
@@ -75,7 +54,7 @@
         },
         {
           "name": "user",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         }
       ],
@@ -96,7 +75,7 @@
         },
         {
           "name": "user",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         }
       ],
@@ -165,9 +144,11 @@
       "code": 300,
       "name": "InvalidMessage",
       "msg": "The given message ID does not exist."
+    },
+    {
+      "code": 301,
+      "name": "ExceededMessageLength",
+      "msg": "The provided message text is too long. Maximum 240 Characters."
     }
-  ],
-  "metadata": {
-    "address": "6gPJfJrAhqH2SSa5morvHwBWeET8FNqHX2MTUCRoCJbX"
-  }
+  ]
 }
