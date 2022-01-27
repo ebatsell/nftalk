@@ -9,7 +9,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   padding: 0 30px 0 30px;
 }
 
@@ -69,7 +68,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
+  position: relative;
   width: 100%;
   bottom: 0;
   left: 0;
@@ -131,4 +130,3 @@
 .connected-container button {
   height: 50px;
 }
-

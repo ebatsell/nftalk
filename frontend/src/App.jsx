@@ -248,11 +248,6 @@ const App = () => {
 
       return (
         <div className="connected-container">
-          <MessageList
-            messageList={messageList}
-            deleteCallback={deleteMessage}
-            upvoteCallback={upvoteMessage}
-          />
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -269,6 +264,12 @@ const App = () => {
               Submit
             </button>
           </form>
+          <MessageList
+            messageList={messageList}
+            deleteCallback={deleteMessage}
+            upvoteCallback={upvoteMessage}
+            walletAddress={walletAddress}
+          />
         </div>
       );
     }
@@ -350,7 +351,7 @@ const MessageList = (props) => {
           profilePicPath={messageProps.profilePicPath}
           messageText={msg.text}
           likes={msg.score}
-          // dateStr={msg.timestamp}
+          walletAddress={props.walletAddress}
           shareIconPath={messageProps.shareIconPath}
           trashIconPath={messageProps.trashIconPath}
           likeIconPath={messageProps.likeIconPath}
