@@ -3,13 +3,14 @@ import "./Message.css";
 
 const Message = (props) => {
   // const { profilePicPath, messageText, likes, dateStr } = props;
-  const { upvoteCallback, deleteCallback, messageText, likes, /*shareIconPath,*/ trashIconPath, likeIconPath, walletAddress} = props;
+  const { upvoteCallback, deleteCallback, messageText, likes, moneyIconPath, trashIconPath, likeIconPath, walletAddress} = props;
   const msg = props.message;
   const date = new Date(msg.timestamp.toNumber() * 1000);
   const dateStr = date.toLocaleString();
 
   const profilePic = process.env.PUBLIC_URL + "apes/" + Math.floor(msg.userPubkey.toBytes()[0] / 8) + ".png"
   const messageOwnedByUser = msg.userPubkey.toBase58() === walletAddress;
+  console.log(msg.userPubkey.toBase58(), msg.text)
 
   return (
     <div className="message">
@@ -26,6 +27,13 @@ const Message = (props) => {
         </div>
         <div className="icon-div">
           {/* <img className="solid-communication-share" src={shareIconPath} alt="Share it" /> */}
+          <img
+            // onClick={(e) => {e.preventDefault(); deleteCallback(msg.id)}}
+            className="solid-interface-trash-alt"
+            src={moneyIconPath}
+            alt="Payment"
+            hidden={messageOwnedByUser ? "hidden" : ""}
+          />
           <img
             onClick={(e) => {e.preventDefault(); deleteCallback(msg.id)}}
             className="solid-interface-trash-alt"

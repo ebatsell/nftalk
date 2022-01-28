@@ -3,13 +3,16 @@ import twitterLogo from "./assets/twitter-logo.svg";
 import shareIconPath from "./assets/solid-communication-share@2x.png";
 import trashIconPath from "./assets/solid-interface-trash-alt@2x.png";
 import likeIconPath from "./assets/outline-status-heart-plus@2x.png";
+import moneyIconPath from "./assets/dollar-sign.jpg";
 import "./App.css";
 import idl from "./idl.json";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
 import { Program, Provider, web3 } from "@project-serum/anchor";
 import { Buffer } from "buffer";
 // import keypair from "./keypair.json";
 import Message from "./Message";
+import { createTransaction, encodeURL } from "@solana/pay";
+import BigNumber from 'bignumber.js';
 
 window.Buffer = Buffer;
 
@@ -213,6 +216,36 @@ const App = () => {
     }
   };
 
+  const tipMessage = async (messageId) => {
+    // Same pattern - try/catch of the upvote message call
+    // return null;
+    const provider = getProvider();
+    let message = messageList.find((m) => m.id === messageId);
+    const payer = provider.wallet.publicKey; // Current user
+    const recipient = message.userPubkey;
+    const label = "NFTalk Tip";
+    const urlMessage = "..."; // This is displayed in their wallet (in theory)
+    const memo = "..."; // This goes on-chain^
+    const amount = BigNumber(.01); // Read from widget - figure out some frontend flow here^ (BigNumber type?)
+    const reference = new Keypair().publicKey;
+
+    const url = encodeURL({recipient, amount, reference, label, urlMessage, memo});
+    const connection = provider.connection;
+
+    const tx = await createTransaction(connection, payer, recipient, amount, {
+      reference,
+      memo,
+    });
+
+    /**
+       * Send the transaction to the network
+     */
+    sendAndConfirmTransaction(connection, tx, [provider.wallet]);
+    // 
+
+    console.log(tx);
+  };
+
   /*
    * We want to render this UI when the user hasn't connected
    * their wallet to our app yet.
@@ -335,7 +368,8 @@ const messageData = {
     profilePicPath: "./assets/apes/",
     shareIconPath: shareIconPath,
     trashIconPath: trashIconPath,
-    likeIconPath: likeIconPath
+    likeIconPath: likeIconPath,
+    moneyIconPath: moneyIconPath
 };
 
 const MessageList = (props) => {
@@ -355,6 +389,7 @@ const MessageList = (props) => {
           shareIconPath={messageProps.shareIconPath}
           trashIconPath={messageProps.trashIconPath}
           likeIconPath={messageProps.likeIconPath}
+          moneyIconPath={messageProps.moneyIconPath}
         />
       )}
     </div>
