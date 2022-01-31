@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import twitterLogo from "./assets/twitter-logo.svg";
-import shareIconPath from "./assets/solid-communication-share@2x.png";
-import trashIconPath from "./assets/solid-interface-trash-alt@2x.png";
-import likeIconPath from "./assets/outline-status-heart-plus@2x.png";
-import moneyIconPath from "./assets/dollar-sign.jpg";
 import "./App.css";
 import idl from "./idl.json";
-import { Connection, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
-import { Program, Provider, web3 } from "@project-serum/anchor";
+import { Connection, PublicKey, sendAndConfirmRawTransaction, Transaction, TransactionInstruction,LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Program, Provider, web3  } from "@project-serum/anchor";
 import { Buffer } from "buffer";
 // import keypair from "./keypair.json";
 import Message from "./Message";
-import { createTransaction, encodeURL } from "@solana/pay";
-import BigNumber from 'bignumber.js';
+import { BigNumber } from "bignumber.js";
 
 window.Buffer = Buffer;
 
@@ -65,8 +60,12 @@ const App = () => {
           // console.log("Connected with public key!", response.s/tatus());
           console.log(
             "Connected with public key!",
-            solana.publicKey.toString()
+            solana.publicKey.toString(),
           );
+          // console.log(
+          //   "Connected with public key!",
+          //   solana.
+          // );
           setWalletAddress(response.publicKey.toString());
         }
       } else {
@@ -85,6 +84,7 @@ const App = () => {
     const { solana } = window;
     if (solana) {
       const response = await solana.connect();
+      console.log(response);
       setWalletAddress(response.publicKey.toString());
     }
   };
@@ -216,34 +216,60 @@ const App = () => {
     }
   };
 
-  const tipMessage = async (messageId) => {
+  const tipMessage = async (messageId, tipAmount) => {
+    console.log(tipAmount);
+    if (tipAmount.isNaN()) {
+      console.log("Can't send an empty or invalid amount");
+      alert("Attempting to send an empty or invalid amount");
+      return;
+    }
     // Same pattern - try/catch of the upvote message call
     // return null;
     const provider = getProvider();
+
+
     let message = messageList.find((m) => m.id === messageId);
     const payer = provider.wallet.publicKey; // Current user
+    const payerInfo = await provider.connection.getAccountInfo(payer);
     const recipient = message.userPubkey;
-    const label = "NFTalk Tip";
-    const urlMessage = "..."; // This is displayed in their wallet (in theory)
-    const memo = "..."; // This goes on-chain^
-    const amount = BigNumber(.01); // Read from widget - figure out some frontend flow here^ (BigNumber type?)
-    const reference = new Keypair().publicKey;
+    const memo = "Tip for your post on NFTalk"; // This goes on-chain
 
-    const url = encodeURL({recipient, amount, reference, label, urlMessage, memo});
-    const connection = provider.connection;
+    // Convert amount to lamports
+    tipAmount = tipAmount.times(LAMPORTS_PER_SOL).integerValue(BigNumber.ROUND_FLOOR);
 
-    const tx = await createTransaction(connection, payer, recipient, amount, {
-      reference,
-      memo,
+    // Check that payer has enough funds
+    const lamports = tipAmount.toNumber();
+    if (lamports > payerInfo.lamports) {
+      throw new Error('insufficient funds');
+    }
+
+    const instruction = SystemProgram.transfer({
+      fromPubkey: payer,
+      toPubkey: recipient,
+      lamports,
     });
 
-    /**
-       * Send the transaction to the network
-     */
-    sendAndConfirmTransaction(connection, tx, [provider.wallet]);
-    // 
+    let tx = new Transaction();
+    // If a memo is provided, add it to the transaction before adding the transfer instruction
+    if (memo != null) {
+      tx.add(
+          new TransactionInstruction({
+              programId: new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'), // Memo program ID
+              keys: [],
+              data: Buffer.from(memo, 'utf8'),
+          })
+      );
+    }
+    tx.add(instruction);
 
-    console.log(tx);
+    // Adds requisite fields to make the tx object complete
+    tx.feePayer = provider.wallet.publicKey;
+    tx.recentBlockhash = (await provider.connection.getRecentBlockhash()).blockhash;
+    tx = await provider.wallet.signTransaction(tx);
+    // Send the transaction to the network
+    const txSignature = await sendAndConfirmRawTransaction(provider.connection, tx.serialize());
+    console.log(`https://solscan.io/tx/${txSignature}`);
+    // Send txSignature to tweet data?
   };
 
   /*
@@ -301,6 +327,7 @@ const App = () => {
             messageList={messageList}
             deleteCallback={deleteMessage}
             upvoteCallback={upvoteMessage}
+            tipCallback={tipMessage}
             walletAddress={walletAddress}
           />
         </div>
@@ -366,10 +393,6 @@ const App = () => {
 
 const messageData = {
     profilePicPath: "./assets/apes/",
-    shareIconPath: shareIconPath,
-    trashIconPath: trashIconPath,
-    likeIconPath: likeIconPath,
-    moneyIconPath: moneyIconPath
 };
 
 const MessageList = (props) => {
@@ -382,14 +405,11 @@ const MessageList = (props) => {
           message={msg}
           upvoteCallback={props.upvoteCallback}
           deleteCallback={props.deleteCallback}
+          tipCallback={props.tipCallback}
           profilePicPath={messageProps.profilePicPath}
           messageText={msg.text}
           likes={msg.score}
           walletAddress={props.walletAddress}
-          shareIconPath={messageProps.shareIconPath}
-          trashIconPath={messageProps.trashIconPath}
-          likeIconPath={messageProps.likeIconPath}
-          moneyIconPath={messageProps.moneyIconPath}
         />
       )}
     </div>

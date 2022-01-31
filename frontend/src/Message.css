@@ -98,3 +98,10 @@
   align-items: flex-end;
   justify-content: flex-end;
 }
+
+.tip-input-box {
+  width: 100px;
+  margin-bottom: 5px;
+  font-family: var(--font-family-quando);
+  font-size: var(--font-size-s);
+}

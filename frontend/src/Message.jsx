@@ -1,9 +1,16 @@
-import React from "react";
+import React, {useState} from "react";
 import "./Message.css";
+import { BigNumber } from "bignumber.js";
+// import shareIconPath from "./assets/solid-communication-share@2x.png";
+import trashIconPath from "./assets/solid-interface-trash-alt@2x.png";
+import likeIconPath from "./assets/outline-status-heart-plus@2x.png";
+import moneyIconPath from "./assets/dollar-sign.png";
+import sendTipIconPath from "./assets/Send.png";
 
 const Message = (props) => {
-  // const { profilePicPath, messageText, likes, dateStr } = props;
-  const { upvoteCallback, deleteCallback, messageText, likes, moneyIconPath, trashIconPath, likeIconPath, walletAddress} = props;
+  const [isTipVisible, setIsTipVisible] = useState(false);
+  const [tipValue, setTipValue] = useState(null);
+  const { upvoteCallback, deleteCallback, tipCallback, messageText, likes, walletAddress} = props;
   const msg = props.message;
   const date = new Date(msg.timestamp.toNumber() * 1000);
   const dateStr = date.toLocaleString();
@@ -11,6 +18,13 @@ const Message = (props) => {
   const profilePic = process.env.PUBLIC_URL + "apes/" + Math.floor(msg.userPubkey.toBytes()[0] / 8) + ".png"
   const messageOwnedByUser = msg.userPubkey.toBase58() === walletAddress;
   console.log(msg.userPubkey.toBase58(), msg.text)
+
+  const onTipInputChange = (e) => {
+    console.log(e);
+    const val = e.target.value;
+    setTipValue(val);
+  }
+
 
   return (
     <div className="message">
@@ -28,11 +42,25 @@ const Message = (props) => {
         <div className="icon-div">
           {/* <img className="solid-communication-share" src={shareIconPath} alt="Share it" /> */}
           <img
-            // onClick={(e) => {e.preventDefault(); deleteCallback(msg.id)}}
+            onClick={(e) => {e.preventDefault(); setIsTipVisible(!isTipVisible);}}
             className="solid-interface-trash-alt"
             src={moneyIconPath}
             alt="Payment"
             hidden={messageOwnedByUser ? "hidden" : ""}
+          />
+          <input
+            className="tip-input-box"
+            placeholder="send tip (in SOL)"
+            value={tipValue ? tipValue : ""}
+            onChange={onTipInputChange}
+            hidden={isTipVisible ? "" : "hidden"}
+          />
+          <img
+            onClick={(e) => {e.preventDefault(); tipCallback(msg.id, BigNumber(tipValue))}}
+            className="solid-interface-trash-alt"
+            src={sendTipIconPath}
+            alt="Send it"
+            hidden={isTipVisible ? "" : "hidden"}
           />
           <img
             onClick={(e) => {e.preventDefault(); deleteCallback(msg.id)}}
