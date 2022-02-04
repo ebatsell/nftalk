@@ -57,15 +57,10 @@ const App = () => {
         if (solana.isPhantom) {
           console.log("Phantom wallet found!");
           const response = await solana.connect({ onlyIfTrusted: true });
-          // console.log("Connected with public key!", response.s/tatus());
           console.log(
             "Connected with public key!",
             solana.publicKey.toString(),
           );
-          // console.log(
-          //   "Connected with public key!",
-          //   solana.
-          // );
           setWalletAddress(response.publicKey.toString());
         }
       } else {
@@ -84,7 +79,6 @@ const App = () => {
     const { solana } = window;
     if (solana) {
       const response = await solana.connect();
-      console.log(response);
       setWalletAddress(response.publicKey.toString());
     }
   };
@@ -99,7 +93,6 @@ const App = () => {
     try {
       const provider = getProvider();
       const program = new Program(idl, programID, provider);
-      console.log("ping");
       await program.rpc.initialize({
         accounts: {
           myAccount: baseAccount.publicKey,
@@ -208,7 +201,6 @@ const App = () => {
       let messageIdx = messageList.findIndex((m) => m.id === messageId);
       messageList[messageIdx].score += 1;
       setMessageList(messageList); // Set react state
-      console.log(messageList)
       renderConnectedContainer();
       await getMessageList();
     } catch (error) {
@@ -226,7 +218,7 @@ const App = () => {
     // Same pattern - try/catch of the upvote message call
     // return null;
     const provider = getProvider();
-
+    // const program = new Program(idl, programID, provider);
 
     let message = messageList.find((m) => m.id === messageId);
     const payer = provider.wallet.publicKey; // Current user
@@ -260,6 +252,18 @@ const App = () => {
           })
       );
     }
+
+    // // Create transaction reference and push it to the NFTalk data account
+    // const tipReference = new Keypair().publicKey;
+    // const saveReferenceInstruction = program.instruction.saveTipReference(message.id, tipReference, {
+    //   accounts: {
+    //     myAccount: baseAccount.publicKey,
+    //     user: provider.wallet.publicKey,
+    //   }, 
+    // });
+    
+    // instruction.keys.push({ pubkey: tipReference, isWritable: false, isSigner: false });
+    // tx.add(saveReferenceInstruction);
     tx.add(instruction);
 
     // Adds requisite fields to make the tx object complete
@@ -303,8 +307,9 @@ const App = () => {
       );
     } else {
       console.log("Rendering grid and submit button");
-      console.log(messageList);
+      // console.log(messageList);
 
+      const provider = getProvider();
       return (
         <div className="connected-container">
           <form
@@ -329,6 +334,7 @@ const App = () => {
             upvoteCallback={upvoteMessage}
             tipCallback={tipMessage}
             walletAddress={walletAddress}
+            connection={provider.connection}
           />
         </div>
       );
@@ -410,6 +416,7 @@ const MessageList = (props) => {
           messageText={msg.text}
           likes={msg.score}
           walletAddress={props.walletAddress}
+          connection={props.connection}
         />
       )}
     </div>
