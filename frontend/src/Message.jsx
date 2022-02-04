@@ -18,6 +18,8 @@ const selectProfilePic = async (connection, userPubkey, setProfilePic) => {
   /* I hate javascript */
   // Goal: select first image that works
   const result = await getMetadata();
+  // Make ordering consistent
+  result.sort((a, b) => (a.mint < b.mint));
   for (let i in result) {
     const nftUri = result[i].data.uri;
     try {
