@@ -1,3 +1,1 @@
-Frontend for repo
-Based on Buildspace local setup
-
+This is a starter template for [Learn Next.js](https://nextjs.org/learn).

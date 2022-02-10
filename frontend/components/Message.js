@@ -1,13 +1,13 @@
 import React, {useState} from "react";
-import "./Message.css";
 import { BigNumber } from "bignumber.js";
-// import shareIconPath from "./assets/solid-communication-share@2x.png";
-import trashIconPath from "./assets/solid-interface-trash-alt@2x.png";
-import likeIconPath from "./assets/outline-status-heart-plus@2x.png";
-import moneyIconPath from "./assets/dollar-sign.png";
-import sendTipIconPath from "./assets/Send.png";
 import { programs } from "@metaplex/js";
-
+import Image from "next/image";
+import styles from "./Message.module.css";
+// const shareIconPath = "/images/solid-communication-share@2x.png";
+const trashIconPath = "/images/solid-interface-trash-alt@2x.png";
+const likeIconPath = "/images/outline-status-heart-plus@2x.png";
+const moneyIconPath = "/images/dollar-sign.png";
+const sendTipIconPath = "/images/Send.png";
 
 const selectProfilePic = async (connection, userPubkey, setProfilePic) => {
   const getMetadata = async () => {
@@ -47,7 +47,7 @@ const Message = (props) => {
 
   const [isTipVisible, setIsTipVisible] = useState(false);
   const [tipValue, setTipValue] = useState(null);
-  const apePic = process.env.PUBLIC_URL + "apes/" + Math.floor(msg.userPubkey.toBytes()[0] / 8) + ".png"
+  const apePic = "/images/apes/" + Math.floor(msg.userPubkey.toBytes()[0] / 8) + ".png"
   const [profilePicState, setProfilePic] = useState(apePic);
 
   const messageOwnedByUser = msg.userPubkey.toBase58() === walletAddress;
@@ -59,31 +59,42 @@ const Message = (props) => {
     const val = e.target.value;
     setTipValue(val);
   }
-
   return (
-    <div className="message">
-      <img className="download-1" src={profilePicState} alt="Profile pic" />
-      <div className="this-is-a-post quando-normal-black-12px">{messageText}</div>
-      <div className="flex-col">
-        <div className="number quando-normal-black-12px">
+    <div className={styles.message}>
+      <img
+        className={styles.download1}
+        src={profilePicState}
+        alt="Profile pic"
+        // width={65} // tried getting <Image> to work but struggled
+        // height={65}
+        // layout="fixed"
+        // objectFit="none"
+      />
+      <div className={`${styles.thisIsAPost} quando-normal-black-12px`}>{messageText}</div>
+      <div className={styles.flexCol}>
+        <div className={`${styles.number} quando-normal-black-12px`}>
           {likes}
-          <div
+          <img
             onClick={(e) => {e.preventDefault(); upvoteCallback(msg.id)}}
-            className="group-1"
-            style={{ backgroundImage: `url(${likeIconPath})` }}
+            className={styles.group1}
+            src={likeIconPath}
+            width={24}
+            height={24}
            />
         </div>
-        <div className="icon-div">
+        <div className={styles.iconDiv}>
           {/* <img className="solid-communication-share" src={shareIconPath} alt="Share it" /> */}
           <img
             onClick={(e) => {e.preventDefault(); setIsTipVisible(!isTipVisible);}}
-            className="solid-interface-trash-alt"
+            className={styles.solidInterfaceTrashAlt}
+            width={24}
+            height={24}
             src={moneyIconPath}
             alt="Payment"
             hidden={messageOwnedByUser ? "hidden" : ""}
           />
           <input
-            className="tip-input-box"
+            className={styles.tipInputBox}
             placeholder="send tip (in SOL)"
             value={tipValue ? tipValue : ""}
             onChange={onTipInputChange}
@@ -91,19 +102,23 @@ const Message = (props) => {
           />
           <img
             onClick={(e) => {e.preventDefault(); tipCallback(msg.id, BigNumber(tipValue))}}
-            className="solid-interface-trash-alt"
+            className={styles.solidInterfaceTrashAlt}
             src={sendTipIconPath}
             alt="Send it"
             hidden={isTipVisible ? "" : "hidden"}
+            width={24}
+            height={24}
           />
           <img
             onClick={(e) => {e.preventDefault(); deleteCallback(msg.id)}}
-            className="solid-interface-trash-alt"
+            className={styles.solidInterfaceTrashAlt}
             src={trashIconPath}
             alt="Delete it"
             hidden={messageOwnedByUser ? "" : "hidden"}
+            width={24}
+            height={24}
           />
-          <p className="x1032am-jan-12-2021">{dateStr}</p>
+          <p className={styles.x1032amJan122021}>{dateStr}</p>
         </div>
       </div>
     </div>

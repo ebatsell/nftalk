@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from "react";
-import twitterLogo from "./assets/twitter-logo.svg";
-import "./App.css";
-import idl from "./idl.json";
+import React, { useCallback, useEffect, useState } from "react";
+import idl from "../idl.json";
 import { Connection, PublicKey, sendAndConfirmRawTransaction, Transaction, TransactionInstruction,LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Program, Provider, web3  } from "@project-serum/anchor";
 import { Buffer } from "buffer";
 // import keypair from "./keypair.json";
-import Message from "./Message";
 import { BigNumber } from "bignumber.js";
+import Image from "next/image";
+import MessageList from "./MessageList";
+import { checkIfWalletIsConnected, connectWallet } from "../lib/walletUtils";
+import {WalletConnectButton} from "./WalletConnectButton";
+import { InitializeAccountButton } from "./InitializeAccountButton";
 
-window.Buffer = Buffer;
+// window.Buffer = Buffer;
 
 // SystemProgram is a reference to the Solana runtime!
 const { SystemProgram, Keypair } = web3;
 
-const keypair = JSON.parse(process.env.REACT_APP_KEYPAIR);
+const keypair = JSON.parse(process.env.NEXT_PUBLIC_KEYPAIR);
 
 // Create a keypair for the account that will hold the GIF data.
 const arr = Object.values(keypair._keypair.secretKey);
@@ -34,13 +36,23 @@ const network = 'https://solana-api.projectserum.com/'
 const opts = {
   preflightCommitment: "processed",
 };
+const connection = new Connection(network, opts.preflightCommitment);
+
+const getProvider = () => {
+    const provider = new Provider(
+        connection,
+        window.solana,
+        opts.preflightCommitment
+    );
+    return provider;
+};
 
 
 // Change this up to be your Twitter if you want.
 const TWITTER_HANDLE = "evanbat_";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}/status/1486097274245689344`;
 
-const App = () => {
+export default function App() {
   /*
    * This function holds the logic for deciding if a Phantom Wallet is
    * connected or not
@@ -49,44 +61,13 @@ const App = () => {
   const [inputValue, setInputValue] = useState("");
   const [messageList, setMessageList] = useState([]);
 
-  const checkIfWalletIsConnected = async () => {
-    try {
-      const { solana } = window;
-
-      if (solana) {
-        if (solana.isPhantom) {
-          console.log("Phantom wallet found!");
-          const response = await solana.connect({ onlyIfTrusted: true });
-          console.log(
-            "Connected with public key!",
-            solana.publicKey.toString(),
-          );
-          setWalletAddress(response.publicKey.toString());
-        }
-      } else {
-        alert("Solana object not found! Get a Phantom Wallet 👻");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   /*
    * Let's define this method so our code doesn't break.
    * We will write the logic for this next!
    */
-  const connectWallet = async () => {
-    const { solana } = window;
-    if (solana) {
-      const response = await solana.connect();
-      setWalletAddress(response.publicKey.toString());
-    }
-  };
 
-  const onInputChange = (event) => {
-    const { value } = event.target;
-    setInputValue(value);
-  };
+  const onInputChange = (event) => { setInputValue(event.target.value); };
 
   const createMessageAccount = async () => {
     // Calls "Initialize"
@@ -136,15 +117,6 @@ const App = () => {
     }
   };
 
-  const getProvider = () => {
-    const connection = new Connection(network, opts.preflightCommitment);
-    const provider = new Provider(
-      connection,
-      window.solana,
-      opts.preflightCommitment
-    );
-    return provider;
-  };
 
   const getMessageList = async () => {
     try {
@@ -153,6 +125,7 @@ const App = () => {
       const account = await program.account.myAccount.fetch(
         baseAccount.publicKey
       );
+      console.log(account);
 
       console.log("Got the account", account);
       setMessageList(account.messages);
@@ -162,7 +135,7 @@ const App = () => {
     }
   };
 
-  const deleteMessage = async (messageId) => {
+  const deleteMessage = useCallback(async (messageId) => {
     try {
       const provider = getProvider();
       const program = new Program(idl, programID, provider);
@@ -178,16 +151,14 @@ const App = () => {
         1
       );
       setMessageList(messageList); // Set react state
-      renderConnectedContainer();
+      connectedContainer();
       await getMessageList();
     } catch (error) {
       console.log("Error in deleting message: ", messageId);
     }
-  };
+  }, [messageList]);
 
-  const upvoteMessage = async (messageId) => {
-    // Same pattern - try/catch of the upvote message call
-    // return null;
+  const upvoteMessage = useCallback(async (messageId) => {
     try {
       const provider = getProvider();
       const program = new Program(idl, programID, provider);
@@ -201,22 +172,20 @@ const App = () => {
       let messageIdx = messageList.findIndex((m) => m.id === messageId);
       messageList[messageIdx].score += 1;
       setMessageList(messageList); // Set react state
-      renderConnectedContainer();
+      connectedContainer();
       await getMessageList();
     } catch (error) {
       console.log("Error in deleting message: ", messageId);
     }
-  };
+  }, [messageList]);
 
-  const tipMessage = async (messageId, tipAmount) => {
+  const tipMessage = useCallback(async (messageId, tipAmount) => {
     console.log(tipAmount);
     if (tipAmount.isNaN()) {
       console.log("Can't send an empty or invalid amount");
       alert("Attempting to send an empty or invalid amount");
       return;
     }
-    // Same pattern - try/catch of the upvote message call
-    // return null;
     const provider = getProvider();
     // const program = new Program(idl, programID, provider);
 
@@ -268,47 +237,26 @@ const App = () => {
 
     // Adds requisite fields to make the tx object complete
     tx.feePayer = provider.wallet.publicKey;
-    tx.recentBlockhash = (await provider.connection.getRecentBlockhash()).blockhash;
+    tx.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
     tx = await provider.wallet.signTransaction(tx);
     // Send the transaction to the network
     const txSignature = await sendAndConfirmRawTransaction(provider.connection, tx.serialize());
     console.log(`https://solscan.io/tx/${txSignature}`);
     // Send txSignature to tweet data?
-  };
+  }, [messageList]);
 
   /*
    * We want to render this UI when the user hasn't connected
    * their wallet to our app yet.
    */
-  const renderNotConnectedContainer = () => (
-    <div>
-      <button
-        className="cta-button connect-wallet-button"
-        onClick={connectWallet}
-      >
-        Connect to Wallet
-      </button>
-      <p> Don't have a wallet? Install <a href="https://phantom.app/"> Phantom </a> and load up some SOL! </p>
-    </div>
-  );
 
-  const renderConnectedContainer = () => {
+
+  const connectedContainer = () => {
     if (messageList === null) {
       console.log("Rendering initialization buton");
-      return (
-        <div className="connected-container">
-          <button
-            className="cta-button submit-gif-button"
-            onClick={createMessageAccount}
-          >
-            Do One-Time Initialization For Tweet Program Account
-          </button>
-        </div>
-      );
+      return <InitializeAccountButton createMessageAccount={createMessageAccount} />
     } else {
       console.log("Rendering grid and submit button");
-      // console.log(messageList);
-
       const provider = getProvider();
       return (
         <div className="connected-container">
@@ -347,7 +295,7 @@ const App = () => {
    */
   useEffect(() => {
     const onLoad = async () => {
-      await checkIfWalletIsConnected();
+      await checkIfWalletIsConnected(setWalletAddress);
     };
     window.addEventListener("load", onLoad);
     return () => window.removeEventListener("load", onLoad);
@@ -374,14 +322,15 @@ const App = () => {
             </p>
             {/* Render your connect to wallet button right here */}
             {!walletAddress
-              ? renderNotConnectedContainer()
-              : renderConnectedContainer()}
+              ? <WalletConnectButton connectWallet={connectWallet} setWalletAddress={setWalletAddress}/>
+              : connectedContainer()}
           </div>
           <div className="footer-container">
-            <img
+            <Image
               alt="Twitter Logo"
               className="twitter-logo"
-              src={twitterLogo}
+              src="/images/twitter-logo.svg"
+              layout="fill"
             />
             <a
               className="footer-text"
@@ -394,33 +343,4 @@ const App = () => {
       </div>
     </div>
   );
-};
-
-
-const messageData = {
-    profilePicPath: "./assets/apes/",
-};
-
-const MessageList = (props) => {
-    const messageProps = messageData;
-    return (
-    <div className="gif-grid">
-      {props.messageList.map((msg, index) =>
-        <Message
-          key={index}
-          message={msg}
-          upvoteCallback={props.upvoteCallback}
-          deleteCallback={props.deleteCallback}
-          tipCallback={props.tipCallback}
-          profilePicPath={messageProps.profilePicPath}
-          messageText={msg.text}
-          likes={msg.score}
-          walletAddress={props.walletAddress}
-          connection={props.connection}
-        />
-      )}
-    </div>
-  );
-};
-
-export default App;
+}

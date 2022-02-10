@@ -13,3 +13,20 @@
 * {
   box-sizing: border-box;
 }
+
+:root { 
+  --black: #000000;
+  --white: #ffffff;
+ 
+  --font-size-m: 12px;
+  --font-size-s: 10px;
+ 
+  --font-family-quando: "Quando", Helvetica;
+}
+.quando-normal-black-12px {
+  color: var(--black);
+  font-family: var(--font-family-quando);
+  font-size: var(--font-size-m);
+  font-style: normal;
+  font-weight: 400;
+}
